@@ -1,10 +1,12 @@
 "use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { SignUpInput, signUpSchema } from './signUpSchema';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { SignUpInput, signUpSchema } from "./signUpSchema";
+import SignUpService from "./service/sign-up.service";
+import { toast } from "sonner";
 
 export function SignUpForm() {
   const router = useRouter();
@@ -18,13 +20,13 @@ export function SignUpForm() {
 
   const onSubmit = async (data: SignUpInput) => {
     try {
-      // 1. Call your Express backend here
-      // const response = await fetch('http://localhost:5000/api/auth/signup', ...)
-      
-      console.log("Account created:", data);
-      
-      // 2. Redirect to the role selection step
-      router.push('/onboarding/role-selection');
+      const response = await SignUpService.signUp(data);
+
+      if (!response.success) {
+        return toast.error("User SignUp error");
+      }
+
+      router.push("/onboarding");
     } catch (error) {
       console.error("Signup failed", error);
     }
@@ -37,26 +39,32 @@ export function SignUpForm() {
         <div className="relative">
           <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
           <input
-            {...register("fullName")}
+            {...register("name")}
             placeholder="John Doe"
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
           />
         </div>
-        {errors.fullName && <p className="text-red-500 text-xs">{errors.fullName.message}</p>}
+        {errors.name && (
+          <p className="text-red-500 text-xs">{errors.name.message}</p>
+        )}
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-700">Email Address</label>
+        <label className="text-sm font-medium text-slate-700">
+          Email Address
+        </label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
           <input
             {...register("email")}
             type="email"
             placeholder="john@example.com"
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 text-gray-800 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
           />
         </div>
-        {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+        {errors.email && (
+          <p className="text-red-500 text-xs">{errors.email.message}</p>
+        )}
       </div>
 
       <div className="space-y-1">
@@ -67,10 +75,12 @@ export function SignUpForm() {
             {...register("password")}
             type="password"
             placeholder="••••••••"
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 text-black border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
           />
         </div>
-        {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+        {errors.password && (
+          <p className="text-red-500 text-xs">{errors.password.message}</p>
+        )}
       </div>
 
       <button
@@ -78,7 +88,11 @@ export function SignUpForm() {
         disabled={isSubmitting}
         className="w-full mt-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
       >
-        {isSubmitting ? <Loader2 className="animate-spin h-5 w-5" /> : "Create Account"}
+        {isSubmitting ? (
+          <Loader2 className="animate-spin h-5 w-5" />
+        ) : (
+          "Create Account"
+        )}
         {!isSubmitting && <ArrowRight size={18} />}
       </button>
     </form>

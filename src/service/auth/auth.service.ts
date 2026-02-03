@@ -1,15 +1,22 @@
-import { User } from "@/src/providers/auth/AuthContext";
+import { UserRoleType } from "@/src/lib/constants";
 import { cookies } from "next/headers";
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role?: UserRoleType;
+  onboardingStatus: string;
+  image: string | null;
+  emailVerified: boolean;
+}
 
 interface BetterAuthSession {
   success: boolean;
   errors: string;
   message: string;
   statusCode: number;
-  data: {
-    user: User;
-    [key: string]: unknown;
-  };
+  data: User;
 }
 
 /**
@@ -39,9 +46,7 @@ const getSession = async () => {
 
   const data: BetterAuthSession = await response.json();
 
-  return {
-    userData: data?.data || null,
-  };
+  return data?.data ?? null;
 };
 
 /**
@@ -80,5 +85,5 @@ const signOut = async () => {
 
 export const AuthService = {
   getSession,
-  signOut
+  signOut,
 };

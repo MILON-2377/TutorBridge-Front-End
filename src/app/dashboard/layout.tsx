@@ -3,6 +3,7 @@ import { UserRole, UserRoleType } from "@/src/lib/constants";
 import { getSessionAction } from "@/src/service/auth/auth.action";
 import { Suspense } from "react";
 import LoadingSpinner from "@/src/layout/loading/LoadingSpinner";
+import { redirect } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,7 +19,12 @@ export default async function DashboardLayout({
   admin,
 }: DashboardLayoutProps) {
   const session = await getSessionAction();
-  const role: UserRoleType = session?.userData?.role;
+
+  if (!session?.role) {
+    redirect("/sign-in");
+  }
+
+  const role: UserRoleType = session.role;
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">

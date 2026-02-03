@@ -1,6 +1,7 @@
 import { TutorBioInput } from "@/src/components/onboarding/onboarding.validation";
 import { AvailabilityInput } from "@/src/components/tutor/tutor.validation";
 import { UserRoleType } from "@/src/lib/constants";
+import { ApiResponse } from "@/src/types/response.types";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -114,6 +115,17 @@ const createAvailabilityRule = async (data: AvailabilityInput) => {
 };
 
 // Get Availabilities
+export interface AvailabilityRulesType {
+  id: string;
+  availabilitySlots: unknown;
+  createdAt: string;
+  dayOfWeek: string;
+  endTime: string;
+  startTime: string;
+  isActive: boolean;
+  tutorId: string;
+  updatedAt: string;
+}
 const getAvailabilities = async () => {
   try {
     const cookieStore = await cookies();
@@ -124,13 +136,17 @@ const getAvailabilities = async () => {
       .join("; ");
 
     if (!cookieHeader) {
-      console.log("No cookies found");
-      return null;
+      return {
+        success: false,
+        availabilities: [],
+        error: "No authentication cookies found",
+      };
     }
 
     const response = await fetch(
       `${process.env.AUTH_BASE_URL}/tutors/availability`,
       {
+        method: "GET",
         headers: {
           cookie: cookieHeader,
         },
@@ -143,16 +159,84 @@ const getAvailabilities = async () => {
     if (!response.ok) {
       return {
         success: false,
-        error: "Get availability errors ",
-        data: null,
+        availabilities: [],
+        error: `Failed to fetch availability (${response.status})`,
       };
     }
+
+    const result: ApiResponse<AvailabilityRulesType[]> = await response.json();
+
+    return {
+      success: true,
+      availabilities: result?.data ?? [],
+      error: null,
+    };
   } catch (error) {
     console.log("Get availabities error", error);
     return {
       success: false,
-      error: error,
-      data: [],
+      availabilities: [],
+      error: "Unexpected server error",
+    };
+  }
+};
+
+// Delete Availability
+const deleteAvailability = async (id: string) => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
+    console.log("delete availability service running");
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/tutors/availability/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          cookie: cookieHeader,
+        },
+        cache: "no-store",
+      },
+    );
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        return {
+          success: false,
+          error: "Unauthorized",
+        };
+      }
+
+      return {
+        success: true,
+        error: `Failed to delete availability (${response.status})`,
+      };
+    }
+
+    await response.json().catch(() => null);
+
+    revalidatePath("availability");
+
+    return {
+      success: true,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Delete availability error", error);
+    return {
+      success: false,
+      error: "SERVER_ERROR",
     };
   }
 };
@@ -161,4 +245,5 @@ export const TutorService = {
   createTutor,
   createAvailabilityRule,
   getAvailabilities,
+  deleteAvailability,
 };

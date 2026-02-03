@@ -1,9 +1,9 @@
 import { Sidebar } from "@/src/components/dashboard/Sidebar";
 import { UserRole, UserRoleType } from "@/src/lib/constants";
-import { getSessionAction } from "@/src/service/auth/auth.action";
 import { Suspense } from "react";
 import LoadingSpinner from "@/src/layout/loading/LoadingSpinner";
 import { redirect } from "next/navigation";
+import { AuthService } from "@/src/service/auth/auth.service";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,13 +18,13 @@ export default async function DashboardLayout({
   tutor,
   admin,
 }: DashboardLayoutProps) {
-  const session = await getSessionAction();
+  const session = await AuthService.getSession();
 
   if (!session?.role) {
     redirect("/sign-in");
   }
 
-  const role: UserRoleType = session.role;
+  const role = session.role as UserRoleType;
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -32,10 +32,9 @@ export default async function DashboardLayout({
       <Sidebar role={role} />
 
       <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* Top Navbar Placeholder */}
         <header className="h-16 border-b bg-white flex items-center px-6 shrink-0">
           <h2 className="font-bold text-slate-800 uppercase tracking-wider text-sm">
-            {role} Portal
+            {role.toLowerCase()} Portal
           </h2>
         </header>
 

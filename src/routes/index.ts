@@ -4,6 +4,7 @@ import {
   Calendar,
   Clock,
   LayoutDashboard,
+  List,
   Search,
   ShieldCheck,
   Tags,
@@ -21,6 +22,7 @@ const menuItems = {
   TUTOR: [
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Schedule", icon: Clock, href: "/dashboard/schedule" },
+    { name: "Rules", icon: List, href: "/dashboard/rules" },
     { name: "My Students", icon: Users, href: "/dashboard/students" },
     { name: "Edit Profile", icon: UserCircle, href: "/dashboard/profile" },
   ],

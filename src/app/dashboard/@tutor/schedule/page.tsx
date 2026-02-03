@@ -1,11 +1,7 @@
 import { ScheduleClient } from "@/src/components/tutor/ScheduleClient";
-import { TutorService } from "@/src/service/tutor/tutor.service";
+
 
 export default async function SchedulePage() {
-  const result = await TutorService.getAvailabilities();
-
-  const rules = result ? result?.data : [];
-
   return (
     <div className="max-w-5xl mx-auto py-10 px-4 space-y-8">
       <div>

@@ -12,8 +12,6 @@ export function ScheduleClient() {
   const addRule = async (data: AvailabilityInput) => {
     const response = await createAvailabilityAction(data);
     
-    console.log("create availability rule response:", response);
-
     if (response?.success) {
       toast.success("Availability rule created!");
       // Option: redirect them to the rules list page after success

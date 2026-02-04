@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 export default async function RulesPage() {
   const result = await TutorService.getAvailabilities();
 
-  if (!result.success) {
+  if (!result.success && result.status === 401) {
     redirect("/sign-in");
   }
 

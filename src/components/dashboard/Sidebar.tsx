@@ -2,7 +2,6 @@
 
 import { UserRoleType } from "@/src/lib/constants";
 import menuItems from "@/src/routes";
-import { signOutAction } from "@/src/service/auth/auth.action";
 import { GraduationCap, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,15 +14,27 @@ export function Sidebar({ role }: { role: UserRoleType }) {
   const currentMenu = menuItems[role as keyof typeof menuItems] || [];
 
   const handleLogout = async () => {
-    const response = await signOutAction();
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_AUTH_BASE_URL}/api/v1/auth/sign-out`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
 
-    if (!response.success) {
-      return toast.error("Logout Error. try again!");
+      if (!res.ok) {
+        throw new Error("Logout failed");
+      }
+
+      toast.success("Logout successful");
+
+      router.push("/sign-in");
+      router.refresh();
+    } catch (error) {
+      console.log("signout error", error);
+      toast.error("Logout error. Try again!");
     }
-
-    toast.success("Logout successfull");
-
-    router.push("/sign-in");
   };
 
   return (

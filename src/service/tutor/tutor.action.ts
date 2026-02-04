@@ -1,6 +1,6 @@
 "use server";
 import { AvailabilityInput } from "@/src/components/tutor/tutor.validation";
-import { CreateTutor, TutorService } from "./tutor.service";
+import { CreateTutor, GetTutorsParams, TutorService } from "./tutor.service";
 
 // Create tutor action
 export const createTutorAction = async (data: CreateTutor) => {
@@ -15,4 +15,17 @@ export const createAvailabilityAction = async (data: AvailabilityInput) => {
 // Delete Availability Action
 export const deleteAvailabilityAction = async (id: string) => {
   return await TutorService.deleteAvailability(id);
+};
+
+// Update Availability Action
+export const updateAvailabilityAction = async (
+  ruleId: string,
+  data: Partial<AvailabilityInput>,
+) => {
+  return await TutorService.updateAvailabilityRule(ruleId, data);
+};
+
+// Get Tutors Action
+export const getTutorsAction = async (params: GetTutorsParams) => {
+  return await TutorService.getTutors(params);
 };

@@ -23,30 +23,53 @@ interface BetterAuthSession {
  * Get session
  */
 const getSession = async () => {
-  const cookieStore = await cookies();
+  try {
+    const cookieStore = await cookies();
 
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
 
-  if (!cookieHeader) {
-    console.log("No cookies found");
-    return null;
+    if (!cookieHeader) {
+      console.log("No cookies found");
+      return {
+        success: false,
+        user: null,
+        error: "Unauthorized",
+      };
+    }
+
+    const response = await fetch(`${process.env.AUTH_BASE_URL}/users/me`, {
+      headers: {
+        cookie: cookieHeader,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return {
+        success: false,
+        user: null,
+        error: "Unauthorized",
+      };
+    }
+
+    const data: BetterAuthSession = await response.json();
+
+    return {
+      success: true,
+      user: data.data,
+      error: null,
+    };
+  } catch (error) {
+    console.log("User session error", error);
+    return {
+      success: false,
+      user: null,
+      error: error,
+    };
   }
-
-  const response = await fetch(`${process.env.AUTH_BASE_URL}/users/me`, {
-    headers: {
-      cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) return null;
-
-  const data: BetterAuthSession = await response.json();
-
-  return data?.data ?? null;
 };
 
 /**
@@ -67,7 +90,6 @@ const signOut = async () => {
 
   const response = await fetch(`${process.env.AUTH_BASE_URL}/auth/sign-out`, {
     method: "POST",
-    credentials: "include",
     headers: {
       cookie: cookieHeader,
     },

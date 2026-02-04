@@ -5,7 +5,7 @@ import { UserRole, UserRoleType } from "./lib/constants";
 export async function proxy(req: NextRequest) {
   const session = await AuthService.getSession();
 
-  const role = session?.role?.toUpperCase() as UserRoleType;
+  const role = session?.user?.role?.toUpperCase() as UserRoleType;
 
   if (!role) {
     return NextResponse.redirect(new URL("sign-in", req.url));

@@ -20,11 +20,11 @@ export default async function DashboardLayout({
 }: DashboardLayoutProps) {
   const session = await AuthService.getSession();
 
-  if (!session?.role) {
+  if (!session?.success) {
     redirect("/sign-in");
   }
 
-  const role = session.role as UserRoleType;
+  const role = session.user?.role as UserRoleType;
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">

@@ -14,7 +14,9 @@ export default async function RulesPage() {
     redirect("/sign-in");
   }
 
-  const rules: AvailabilityRulesType[] = result.availabilities;
+  console.log({ result });
+
+  const rules: AvailabilityRulesType[] = result.data ? result.data : [];
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4 space-y-8">

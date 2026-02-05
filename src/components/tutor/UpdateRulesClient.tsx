@@ -2,12 +2,12 @@
 
 import { AvailabilityForm } from "@/src/components/tutor/AvailabilityForm";
 import { toast } from "sonner";
-import { AvailabilityInput } from "@/src/components/tutor/tutor.validation";
 import { updateAvailabilityAction } from "@/src/service/tutor/tutor.action";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { AvailabilityRulesType } from "@/src/service/tutor/tutor.service";
+import { AvailabilityPayload } from "./tutor.validation";
 
 export function UpdateRulesClient({
   initialData,
@@ -18,7 +18,13 @@ export function UpdateRulesClient({
 }) {
   const router = useRouter();
 
-  const handleUpdate = async (data: AvailabilityInput) => {
+  const minutesToTimeString = (totalMinutes: number) => {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  };
+
+  const handleUpdate = async (data: AvailabilityPayload) => {
     const response = await updateAvailabilityAction(ruleId, data);
 
     if (response?.success) {
@@ -29,9 +35,6 @@ export function UpdateRulesClient({
       toast.error(response?.error || "Failed to update rule");
     }
   };
-
-
-  console.log(initialData.startTime)
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -59,16 +62,9 @@ export function UpdateRulesClient({
         <AvailabilityForm
           onSubmit={handleUpdate}
           defaultValues={{
-            dayOfWeek: initialData.dayOfWeek as
-              | "MONDAY"
-              | "TUESDAY"
-              | "WEDNESDAY"
-              | "THURSDAY"
-              | "FRIDAY"
-              | "SATURDAY"
-              | "SUNDAY",
-            startTime: initialData.startTime,
-            endTime: initialData.endTime,
+            dayOfWeek: initialData.dayOfWeek,
+            startMinute: minutesToTimeString(Number(initialData.startMinute)),
+            endMinute: minutesToTimeString(Number(initialData.endMinute)),
             isActive: initialData.isActive ?? true,
           }}
           isEdit={true}

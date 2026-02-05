@@ -2,22 +2,22 @@
 
 import { AvailabilityForm } from "@/src/components/tutor/AvailabilityForm";
 import { toast } from "sonner";
-import { AvailabilityInput } from "@/src/components/tutor/tutor.validation";
 import { createAvailabilityAction } from "@/src/service/tutor/tutor.action";
 import { useRouter } from "next/navigation";
+import { AvailabilityPayload } from "./tutor.validation";
 
 export function ScheduleClient() {
   const router = useRouter();
 
-  const addRule = async (data: AvailabilityInput) => {
+  const addRule = async (data: AvailabilityPayload) => {
     const response = await createAvailabilityAction(data);
-    
+
     if (response?.success) {
       toast.success("Availability rule created!");
-      // Option: redirect them to the rules list page after success
-      // router.push("/dashboard/schedule/rules"); 
+      router.push("/dashboard/schedule/rules");
     } else {
       toast.error(response?.error || "Failed to create rule");
+      console.log(response?.error)
     }
   };
 

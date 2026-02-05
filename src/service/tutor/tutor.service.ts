@@ -1,10 +1,10 @@
 import { TutorBioInput } from "@/src/components/onboarding/onboarding.validation";
-import { AvailabilityInput } from "@/src/components/tutor/tutor.validation";
-import { UserRoleType } from "@/src/lib/constants";
+import { DayOfWeekType, UserRoleType } from "@/src/lib/constants";
 import { ApiResponse } from "@/src/types/response.types";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { User } from "../auth/auth.service";
+import { AvailabilityPayload } from "@/src/components/tutor/tutor.validation";
 
 // Get Tutors
 export interface Tutor {
@@ -21,6 +21,7 @@ export interface Tutor {
   languages: string[];
   totalReviews: number;
   avgRating: number;
+  availabilityRules?: AvailabilityRulesType[];
 }
 
 export interface GetTutorsParams {
@@ -38,17 +39,13 @@ export interface TutorPagination {
 }
 
 export interface GetTutorResponse {
-  success: boolean;
-  tutors: {
-    data: Tutor[];
-    pagination: TutorPagination;
-  };
-  error: string | null;
+  data: Tutor[];
+  pagination: TutorPagination;
 }
 
 const getTutors = async (
   params: GetTutorsParams = {},
-): Promise<GetTutorResponse> => {
+): Promise<ApiResponse<GetTutorResponse>> => {
   try {
     const cookieStore = await cookies();
 
@@ -60,11 +57,11 @@ const getTutors = async (
     if (!cookieHeader) {
       return {
         success: false,
-        tutors: {
+        data: {
           data: [],
           pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
         },
-        error: "Unauthorized: No session cookie",
+        errors: "Unauthorized: No session cookie",
       };
     }
 
@@ -85,11 +82,11 @@ const getTutors = async (
     if (!response.ok) {
       return {
         success: false,
-        tutors: {
+        data: {
           data: [],
           pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
         },
-        error: `Failed to fetch tutors (${response.status})`,
+        errors: `Failed to fetch tutors (${response.status})`,
       };
     }
 
@@ -98,16 +95,18 @@ const getTutors = async (
 
     return {
       success: true,
-      tutors: {
-        data: result.data.data ?? [],
-        pagination: result.data.pagination ?? {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalPages: 0,
-        },
+      data: {
+        data: result.data ? result.data.data : [],
+        pagination: result.data
+          ? result.data.pagination
+          : {
+              page: 1,
+              limit: 10,
+              total: 0,
+              totalPages: 0,
+            },
       },
-      error: null,
+      errors: null,
     };
   } catch (error) {
     console.error("get tutors error", error);
@@ -117,11 +116,65 @@ const getTutors = async (
 
     return {
       success: false,
-      tutors: {
+      data: {
         data: [],
         pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
       },
-      error: message,
+      errors: message,
+    };
+  }
+};
+
+// Get Tutor By ID
+const getTutorById = async (id: string) => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        tutor: null,
+        error: "No authentication cookies found",
+      };
+    }
+
+    const response = await fetch(`${process.env.AUTH_BASE_URL}/tutors/${id}`, {
+      method: "GET",
+      headers: {
+        cookie: cookieHeader,
+      },
+      cache: "no-store",
+      next: {
+        tags: ["tutor"],
+      },
+    });
+
+    if (!response.ok) {
+      return {
+        success: false,
+        tutor: null,
+        error: `Failed to fetch Tutor (${response.status})`,
+      };
+    }
+
+    const result: ApiResponse<Tutor> = await response.json();
+
+    return {
+      success: true,
+      tutor: result?.data ?? null,
+      error: null,
+    };
+  } catch (error) {
+    console.log("Get tutor error", error);
+    return {
+      success: false,
+      tutor: null,
+      error: "Unexpected server error",
     };
   }
 };
@@ -185,7 +238,7 @@ const createTutor = async (data: CreateTutor) => {
 };
 
 // Create Availability
-const createAvailabilityRule = async (data: AvailabilityInput) => {
+const createAvailabilityRule = async (data: AvailabilityPayload) => {
   try {
     const cookieStore = await cookies();
 
@@ -238,7 +291,7 @@ const createAvailabilityRule = async (data: AvailabilityInput) => {
 // Update Availability Rule
 const updateAvailabilityRule = async (
   ruleId: string,
-  data: Partial<AvailabilityInput>,
+  data: Partial<AvailabilityPayload>,
 ) => {
   try {
     const cookieStore = await cookies();
@@ -293,14 +346,16 @@ export interface AvailabilityRulesType {
   id: string;
   availabilitySlots: unknown;
   createdAt: string;
-  dayOfWeek: string;
-  endTime: string;
-  startTime: string;
+  dayOfWeek: DayOfWeekType;
+  endMinute: string;
+  startMinute: string;
   isActive: boolean;
   tutorId: string;
   updatedAt: string;
 }
-const getAvailabilities = async () => {
+const getAvailabilities = async (): Promise<
+  ApiResponse<AvailabilityRulesType[]>
+> => {
   try {
     const cookieStore = await cookies();
 
@@ -312,9 +367,9 @@ const getAvailabilities = async () => {
     if (!cookieHeader) {
       return {
         success: false,
-        availabilities: [],
+        data: [],
         status: 401,
-        error: "No authentication cookies found",
+        errors: "No authentication cookies found",
       };
     }
 
@@ -334,9 +389,9 @@ const getAvailabilities = async () => {
     if (!response.ok) {
       return {
         success: false,
-        availabilities: [],
+        data: [],
         status: response.status,
-        error: `Failed to fetch availability (${response.status})`,
+        errors: `Failed to fetch availability (${response.status})`,
       };
     }
 
@@ -344,15 +399,15 @@ const getAvailabilities = async () => {
 
     return {
       success: true,
-      availabilities: result?.data ?? [],
-      error: null,
+      data: result?.data ?? [],
+      errors: null,
     };
   } catch (error) {
     console.log("Get availabities error", error);
     return {
       success: false,
-      availabilities: [],
-      error: "Unexpected server error",
+      data: [],
+      errors: "Unexpected server error",
     };
   }
 };
@@ -473,12 +528,84 @@ const deleteAvailability = async (id: string) => {
   }
 };
 
+// Get Availabilities Rules
+export interface AvailabilitySlot {
+  availabilityRuleId: string;
+  id: string;
+  date: string;
+  startMinute: number;
+  endMinute: number;
+  status: "AVAILABLE" | "BOOKED" | "CANCELLED";
+}
+
+export interface AvailabilityRule {
+  id: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
+  availabilitySlots: AvailabilitySlot[];
+}
+
+const getAvailabilitySlots = async (
+  tutorId: string,
+): Promise<ApiResponse<AvailabilitySlot[]>> => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        data: null,
+        errors: "No authentication cookies found",
+      };
+    }
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/tutors/availability/slots/${tutorId}`,
+      {
+        headers: {
+          cookie: cookieHeader,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      },
+    );
+
+    const result: ApiResponse<AvailabilitySlot[]> = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        data: null,
+        errors: result.errors || "Failed to fetch availability rules",
+      };
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Get Availability error:", error);
+    return {
+      success: false,
+      data: null,
+      errors: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
 export const TutorService = {
   createTutor,
   getTutors,
+  getTutorById,
   createAvailabilityRule,
   getAvailabilities,
   deleteAvailability,
   getAvailabilityById,
   updateAvailabilityRule,
+  getAvailabilitySlots,
 };

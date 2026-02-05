@@ -1,5 +1,4 @@
-// app/dashboard/@student/page.tsx
-import BookingCard from "@/src/components/student/BookingCard";
+import { BookingCard } from "@/src/components/student/BookingCard";
 import StatCard from "@/src/components/student/StatCard";
 import { BookOpen, Clock, Star, Search } from "lucide-react";
 import Link from "next/link";
@@ -66,7 +65,7 @@ export default function StudentDashboard() {
 
           <div className="space-y-3">
             {/* We will map through real bookings here later */}
-            <BookingCard
+            {/* <BookingCard
               tutorName="Dr. Sarah Johnson"
               subject="Advanced Mathematics"
               time="Today, 4:00 PM"
@@ -77,7 +76,7 @@ export default function StudentDashboard() {
               subject="Physics 101"
               time="Tomorrow, 10:30 AM"
               status="CONFIRMED"
-            />
+            /> */}
           </div>
         </div>
 

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { SignInInput, signInSchema } from "./sign-in.validation";
+import { SignInInput, SignInOutput, signInSchema } from "./sign-in.validation";
 import { signIn } from "./service/signin";
 
 export function SignInForm() {
@@ -17,7 +17,7 @@ export function SignInForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInInput>({
+  } = useForm<SignInInput, any, SignInOutput>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
@@ -26,9 +26,8 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = async (data: SignInInput) => {
+  const onSubmit = async (data: SignInOutput) => {
     try {
-      // Logic: Call your Express API / Better-Auth Login
       console.log("Attempting Login:", data);
 
       await signIn(data);
@@ -36,7 +35,7 @@ export function SignInForm() {
       toast.success("Welcome back!");
       router.push("/dashboard");
     } catch (error) {
-      toast.error("Invalid credentials. Please try again.");
+      toast.error(`Invalid credentials. Please try again. errors: ${error}`);
     }
   };
 

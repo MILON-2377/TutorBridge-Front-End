@@ -18,7 +18,7 @@ export default async function TutorGrid({ params }: TutorGridProps) {
     limit: 12,
   });
 
-  const tutors: Tutor[] = result?.tutors?.data || [];
+  const tutors: Tutor[] = result?.data?.data || [];
 
   if (tutors.length === 0) {
     return (

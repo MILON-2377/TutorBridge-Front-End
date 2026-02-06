@@ -32,7 +32,6 @@ const getSession = async () => {
       .join("; ");
 
     if (!cookieHeader) {
-      console.log("No cookies found");
       return {
         success: false,
         user: null,

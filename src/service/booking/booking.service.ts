@@ -2,6 +2,7 @@ import { BookingStatusType } from "@/src/lib/constants";
 import { ApiResponse } from "@/src/types/response.types";
 import { cookies } from "next/headers";
 import { AvailabilitySlot, Tutor } from "../tutor/tutor.service";
+import { ReviewInput } from "./booking.validation";
 
 // Create Booking
 export interface CreateBookingPayload {
@@ -78,7 +79,7 @@ export interface StudentBooking {
   id: string;
   availabilitySlot: AvailabilitySlot;
   price: number;
-  status: "PENDING" | "BOOKED";
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
   studentId: string;
   tutor: Tutor;
   createdAt: string;
@@ -147,7 +148,130 @@ const getBookingsStudentId = async (
   }
 };
 
+export interface BookingStatusPayload {
+  status: BookingStatusType;
+}
+
+const updateBookingStatus = async (
+  bookingId: string,
+  payload: BookingStatusPayload,
+): Promise<ApiResponse<Booking>> => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        data: null,
+        errors: "No authentication cookies found",
+      };
+    }
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/bookings/status/${bookingId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: cookieHeader,
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        data: null,
+        errors: result?.message || "Failed to update booking status",
+      };
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      errors: null,
+    };
+  } catch (error) {
+    console.error("Update booking status error:", error);
+    return {
+      success: false,
+      data: null,
+      errors: "Unexpected server error",
+    };
+  }
+};
+
+// Give review
+const createReview = async (
+  bookingId: string,
+  payload: ReviewInput,
+): Promise<ApiResponse<Booking>> => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        data: null,
+        errors: "No authentication cookies found",
+      };
+    }
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/reviews/${bookingId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: cookieHeader,
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        data: null,
+        errors: result?.message || "Failed to set review on session",
+      };
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      errors: null,
+    };
+  } catch (error) {
+    console.error("Give review on session error:", error);
+    return {
+      success: false,
+      data: null,
+      errors: "Unexpected server error",
+    };
+  }
+};
+
 export const BookingService = {
   createBooking,
   getBookingsStudentId,
+  updateBookingStatus,
+  createReview
 };

@@ -29,7 +29,7 @@ export default async function BookingsPage({
     {
       title: "Confirmed",
       value: studentBookings
-        .filter((b) => b.status === "BOOKED")
+        .filter((b) => b.status === "CONFIRMED")
         .length.toString(),
       icon: Calendar,
       color: "text-amber-600",

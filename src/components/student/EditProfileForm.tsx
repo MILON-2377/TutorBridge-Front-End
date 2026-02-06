@@ -31,9 +31,6 @@ export default function EditProfileForm({ initialData }: Props) {
 
   const onSubmit = async (data: ProfileInput) => {
     try {
-
-        console.log(data)
-
       const response = await profileUpdateAction(data);
 
       if (response.success) {

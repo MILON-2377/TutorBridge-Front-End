@@ -8,7 +8,7 @@ export async function proxy(req: NextRequest) {
   const role = session?.user?.role?.toUpperCase() as UserRoleType;
 
   if (!role) {
-    return NextResponse.redirect(new URL("sign-in", req.url));
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   const allowedRoles = [UserRole.ADMIN, UserRole.STUDENT, UserRole.TUTOR];

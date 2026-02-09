@@ -29,3 +29,10 @@ export const updateAvailabilityAction = async (
 export const getTutorsAction = async (params: GetTutorsParams) => {
   return await TutorService.getTutors(params);
 };
+
+
+
+// Update tutor profile
+export const updateTutorProfileAction = async () => {
+  
+}

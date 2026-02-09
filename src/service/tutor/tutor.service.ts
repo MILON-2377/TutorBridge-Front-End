@@ -125,6 +125,64 @@ const getTutors = async (
   }
 };
 
+export interface TutorProfile extends Tutor {
+  user: User;
+}
+
+const getTutorOwnProfile = async (): Promise<ApiResponse<Tutor>> => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        data: null,
+        errors: "Unauthorized: No session cookie",
+      };
+    }
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/tutors/profile/me`,
+      {
+        headers: { cookie: cookieHeader },
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      return {
+        success: false,
+        data: null,
+        errors: `Failed to fetch tutors (${response.status})`,
+      };
+    }
+
+    const result: ApiResponse<Tutor> = await response.json();
+
+    return {
+      success: true,
+      data: result.data,
+      errors: null,
+    };
+  } catch (error) {
+    console.error("get tutors error", error);
+
+    const message =
+      error instanceof Error ? error.message : "Failed to get tutor profile";
+
+    return {
+      success: false,
+      data: null,
+      errors: message,
+    };
+  }
+};
+
 // Get Tutor By ID
 const getTutorById = async (id: string) => {
   try {
@@ -598,6 +656,62 @@ const getAvailabilitySlots = async (
   }
 };
 
+export interface UpdateTutorProfile {
+  name?: string;
+  bio?: string;
+  hourlyRate?: number;
+  experienceYears?: number;
+  languages?: string[];
+  category?: string;
+}
+
+const updateTutorProfile = async (data: Partial<UpdateTutorProfile>) => {
+  try {
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) return { success: false, error: "Unauthorized" };
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/tutors/profile/edit`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          cookie: cookieHeader,
+        },
+        body: JSON.stringify(data),
+        cache: "no-store",
+      },
+    );
+
+    let result = {};
+    try {
+      result = await response.json();
+    } catch {
+      console.error("Non-JSON response:", await response.text());
+    }
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `Failed to update tutor profile (${response.status})`,
+      };
+    }
+
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Update tutor profile error", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Internal server error",
+    };
+  }
+};
+
 export const TutorService = {
   createTutor,
   getTutors,
@@ -608,4 +722,6 @@ export const TutorService = {
   getAvailabilityById,
   updateAvailabilityRule,
   getAvailabilitySlots,
+  getTutorOwnProfile,
+  updateTutorProfile,
 };

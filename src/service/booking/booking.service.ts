@@ -3,6 +3,7 @@ import { ApiResponse } from "@/src/types/response.types";
 import { cookies } from "next/headers";
 import { AvailabilitySlot, Tutor } from "../tutor/tutor.service";
 import { ReviewInput } from "./booking.validation";
+import { User } from "@/src/providers/auth/AuthContext";
 
 // Create Booking
 export interface CreateBookingPayload {
@@ -148,6 +149,66 @@ const getBookingsStudentId = async (
   }
 };
 
+export interface SessionType extends Booking {
+  student: User;
+}
+
+const getSessionsByTutorId = async (): Promise<ApiResponse<SessionType>> => {
+  try {
+    const cookieStore = await cookies();
+
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    if (!cookieHeader) {
+      return {
+        success: false,
+        data: null,
+        errors: "No authentication cookies found",
+      };
+    }
+
+    const response = await fetch(
+      `${process.env.AUTH_BASE_URL}/bookings/sessions/tutor`,
+      {
+        method: "GET",
+        headers: {
+          cookie: cookieHeader,
+        },
+        cache: "no-store",
+        next: {
+          tags: ["sessions"],
+        },
+      },
+    );
+
+    if (!response.ok) {
+      return {
+        success: false,
+        data: null,
+        errors: `Failed to fetch sessions data (${response.status})`,
+      };
+    }
+
+    const result: ApiResponse<SessionType[]> = await response.json();
+
+    return {
+      success: true,
+      data: result?.data ?? [],
+      errors: null,
+    };
+  } catch (error) {
+    console.log("Get student sessions error", error);
+    return {
+      success: false,
+      data: [],
+      errors: "Unexpected server error",
+    };
+  }
+};
+
 export interface BookingStatusPayload {
   status: BookingStatusType;
 }
@@ -273,5 +334,6 @@ export const BookingService = {
   createBooking,
   getBookingsStudentId,
   updateBookingStatus,
-  createReview
+  createReview,
+  getSessionsByTutorId,
 };

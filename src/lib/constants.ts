@@ -11,7 +11,6 @@ export const BookingStatus = {
   CANCELLED: "CANCELLED",
 } as const;
 
-
 export const DayOfWeek = {
   SUNDAY: "SUNDAY",
   MONDAY: "MONDAY",
@@ -22,8 +21,23 @@ export const DayOfWeek = {
   SATURDAY: "SATURDAY",
 } as const;
 
-
 export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
 export type BookingStatusType =
   (typeof BookingStatus)[keyof typeof BookingStatus];
 export type DayOfWeekType = (typeof DayOfWeek)[keyof typeof DayOfWeek];
+
+// Routes
+export const NavRoutes = [
+  {
+    path: "/tutors",
+    title: "Find Tutors",
+  },
+  {
+    path: "/subjects",
+    title: "Subjects",
+  },
+  {
+    path: "/pricing",
+    title: "Pricing",
+  },
+];

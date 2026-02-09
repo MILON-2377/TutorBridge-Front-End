@@ -1,5 +1,7 @@
 import { UserRoleType } from "@/src/lib/constants";
+import { ApiResponse } from "@/src/types/response.types";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export interface User {
   id: string;
@@ -9,20 +11,15 @@ export interface User {
   onboardingStatus: string;
   image: string | null;
   emailVerified: boolean;
-}
-
-interface BetterAuthSession {
-  success: boolean;
-  errors: string;
-  message: string;
-  statusCode: number;
-  data: User;
+  createdAt: string;
+  updatedAt: string;
+  status: "ACTIVE" | "INACTIVE" | "BLOCKED";
 }
 
 /**
  * Get session
  */
-const getSession = async () => {
+const getSession = cache(async (): Promise<ApiResponse<User>> => {
   try {
     const cookieStore = await cookies();
 
@@ -34,8 +31,9 @@ const getSession = async () => {
     if (!cookieHeader) {
       return {
         success: false,
-        user: null,
-        error: "Unauthorized",
+        data: null,
+        status: 401,
+        errors: "Unauthorized",
       };
     }
 
@@ -47,29 +45,40 @@ const getSession = async () => {
     });
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        user: null,
-        error: "Unauthorized",
+        data: null,
+        status: response.status,
+        errors: errorData.message || "Unauthorized",
       };
     }
 
-    const data: BetterAuthSession = await response.json();
+    const result = await response.json();
 
     return {
       success: true,
-      user: data.data,
-      error: null,
+      data: result.data,
+      status: response.status,
+      errors: null,
     };
   } catch (error) {
     console.log("User session error", error);
+
+    let message = "";
+
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
     return {
       success: false,
-      user: null,
-      error: error,
+      data: null,
+      status: 500,
+      errors: message || "Internal server error",
     };
   }
-};
+});
 
 /**
  * SignOut

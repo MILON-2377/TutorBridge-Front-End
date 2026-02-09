@@ -12,7 +12,9 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto text-center space-y-10">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-2xl shadow-sm animate-bounce">
           <Sparkles size={16} className="text-amber-400" />
-          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Top 1% Mentors only</span>
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">
+            Top 1% Mentors only
+          </span>
         </div>
 
         <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
@@ -21,16 +23,20 @@ export function HeroSection() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-lg text-slate-500 font-medium leading-relaxed">
-          Connect with world-class tutors and industry experts. Flexible scheduling, 
-          personalized roadmaps, and a platform built for deep learning.
+          Connect with world-class tutors and industry experts. Flexible
+          scheduling, personalized roadmaps, and a platform built for deep
+          learning.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <div className="relative w-full sm:w-[450px] group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search for 'Quantum Physics' or 'UI Design'..." 
+          <div className="relative w-full sm:w-112.5 group">
+            <Search
+              className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Search for 'Quantum Physics' or 'UI Design'..."
               className="w-full pl-16 pr-6 py-6 bg-white border-2 border-transparent shadow-2xl shadow-slate-200/50 rounded-[2.5rem] outline-none focus:border-indigo-500 transition-all font-bold text-slate-700"
             />
           </div>

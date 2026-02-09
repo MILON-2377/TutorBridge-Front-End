@@ -24,11 +24,10 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
-  const role = session.user?.role as UserRoleType;
+  const role = session.data?.role as UserRoleType;
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      {/* Sidebar stays fixed and doesn't reload */}
       <Sidebar role={role} />
 
       <div className="flex-1 flex flex-col overflow-y-auto">

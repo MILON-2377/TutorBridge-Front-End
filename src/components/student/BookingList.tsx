@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { StudentBooking } from "@/src/service/booking/booking.service";
 import { BookingCard } from "./BookingCard";
-import { EmptyState } from "./EmptyState";
+import { EmptyState } from "../shared/EmptyState";
 
 export function BookingList({
   bookings,
@@ -75,7 +75,10 @@ export function BookingList({
             ))
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <EmptyState />
+              <EmptyState
+                title="Booking list not found"
+                description="There is no bookings"
+              />
             </motion.div>
           )}
         </AnimatePresence>

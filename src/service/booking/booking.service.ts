@@ -3,7 +3,7 @@ import { ApiResponse } from "@/src/types/response.types";
 import { cookies } from "next/headers";
 import { AvailabilitySlot, Tutor } from "../tutor/tutor.service";
 import { ReviewInput } from "./booking.validation";
-import { User } from "@/src/providers/auth/AuthContext";
+import { User } from "../auth/auth.service";
 
 // Create Booking
 export interface CreateBookingPayload {
@@ -153,7 +153,7 @@ export interface SessionType extends Booking {
   student: User;
 }
 
-const getSessionsByTutorId = async (): Promise<ApiResponse<SessionType>> => {
+const getSessionsByTutorId = async (): Promise<ApiResponse<SessionType[]>> => {
   try {
     const cookieStore = await cookies();
 

@@ -6,11 +6,11 @@ import { redirect } from "next/navigation";
 export default async function ProfilePage() {
   const result = await AuthService.getSession();
 
-  if (!result.success || !result.user) {
+  if (!result.success || !result.data) {
     redirect("/sing-in");
   }
 
-  const user = result.user;
+  const user = result.data;
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

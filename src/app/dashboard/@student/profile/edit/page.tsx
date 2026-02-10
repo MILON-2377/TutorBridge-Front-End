@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 export default async function EditProfilePage() {
   const result = await AuthService.getSession();
 
-  if (!result.success || !result.user) {
+  if (!result.success || !result.data) {
     redirect("/sign-in");
   }
 
-  const user = result?.user ?? { name: "", image: "" };
+  const user = result?.data ?? { name: "", image: "" };
 
   return (
     <main className="max-w-4xl mx-auto py-12 px-6">

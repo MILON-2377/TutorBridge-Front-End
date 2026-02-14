@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { AuthService } from "@/src/service/auth/auth.service";
 import EditProfileForm from "@/src/components/student/EditProfileForm";
 import { redirect } from "next/navigation";

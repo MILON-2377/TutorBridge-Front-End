@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { BookingService } from "@/src/service/booking/booking.service";
 import { BookingList } from "@/src/components/student/BookingList";
 import StatCard from "@/src/components/student/StatCard";

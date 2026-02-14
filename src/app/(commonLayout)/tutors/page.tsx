@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Suspense } from "react";
 import { TutorSearchBar } from "@/src/components/global/TutorSearchBar";
 import { TutorStats } from "@/src/components/global/TutorStats";

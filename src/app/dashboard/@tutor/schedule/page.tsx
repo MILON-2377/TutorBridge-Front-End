@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { ScheduleClient } from "@/src/components/tutor/ScheduleClient";
 
 

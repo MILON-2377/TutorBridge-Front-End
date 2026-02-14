@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Booking, BookingService } from "@/src/service/booking/booking.service";
 import { Users, Clock, GraduationCap } from "lucide-react";
 import StudentTable from "@/src/components/student/SttudentTable";

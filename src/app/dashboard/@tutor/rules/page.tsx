@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { RulesListClient } from "@/src/components/tutor/RulesListClient";
 import Link from "next/link";
 import { AlertCircle, Plus } from "lucide-react";

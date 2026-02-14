@@ -1,3 +1,6 @@
+
+export const dynamic = "force-dynamic";
+
 import { SignInForm } from "@/src/components/sign-in/SignInForm";
 import { GraduationCap } from "lucide-react";
 import Link from "next/link";

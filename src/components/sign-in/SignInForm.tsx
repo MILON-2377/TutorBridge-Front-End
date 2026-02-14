@@ -28,8 +28,6 @@ export function SignInForm() {
 
   const onSubmit = async (data: SignInOutput) => {
     try {
-      console.log("Attempting Login:", data);
-
       await signIn(data);
 
       toast.success("Welcome back!");

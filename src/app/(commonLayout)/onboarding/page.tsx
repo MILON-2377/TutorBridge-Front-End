@@ -1,3 +1,6 @@
+
+export const dynamic = "force-dynamic";
+
 import { OnboardingManager } from "@/src/components/onboarding/OnboardingManager";
 import { CategoryService } from "@/src/service/category/category.service";
 

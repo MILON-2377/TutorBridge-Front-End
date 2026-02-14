@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import InfoCard from "@/src/components/student/InfoCard";
 import ProfileHeader from "@/src/components/student/ProfileHeader";
 import { AuthService } from "@/src/service/auth/auth.service";

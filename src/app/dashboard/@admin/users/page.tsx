@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { UserStats } from "@/src/components/admin/UserStats";
 import { UserTable } from "@/src/components/admin/UserTable";
 import { UserFilters } from "@/src/components/admin/UserFilters";
